@@ -1,4 +1,3 @@
-
 //root
 #include <TLine.h>
 //#include <TStyle.h>
@@ -31,7 +30,7 @@ double coef = 2.5 / (4096 * 10);
   float vertical=-999;
   float angle=-999;
   int Ptype=-999; // 1=hadrons, 2=electron, 3=muons
-  
+
 float CFD(TH1F* hWave,bool isNegative = 1);
 TString getRunName(TString inDataFolder);
 void read(TString inFileList, TString inDataFolder, TString outFile);
@@ -59,15 +58,15 @@ int main(int argc, char *argv[]){
     vertical = atof(argv[6]);
     angle = atof(argv[7]);
     //argv[8] - nevents
-    
-    
+
+
     cout<<"In data file list : "<<inFileList<<endl
         <<"In data path      : "<<inDataFolder<<endl
         <<"Out root file     : "<<outFile<<endl
 	<<"Run nuber         : "<<runNr<<endl;
 	printf("hor,ver,ang: %4.2f %4.2f %4.2f\n",horizontal,vertical,angle);
     read(inFileList, inDataFolder, outFile);
-    
+
   }
   else{
     cout<<" ERROR --->  in input arguments "<<endl
@@ -93,7 +92,7 @@ void read(TString _inFileList, TString _inDataFolder, TString _outFile){
   //tree->SetAutoSave(1000000);
   // Create new event
   TTree::SetBranchStyle(0);
-  
+
   Int_t EventNumber=-999;
   Float_t SamplingPeriod = -999;
   Double_t EpochTime = -999;
@@ -119,7 +118,7 @@ void read(TString _inFileList, TString _inDataFolder, TString _outFile){
   Float_t t[16];
   Int_t EventIDsamIndex[16];
   Int_t FirstCellToPlotsamIndex[16];
-  
+
   Short_t amplValues[16][1024];
   TH1F hCh("hCh","dummy;ns;Amplitude, mV",1024,-0.5*SP,1023.5*SP);
   TString plotSaveFolder  = getRunName(_inFileList);
@@ -132,7 +131,7 @@ void read(TString _inFileList, TString _inDataFolder, TString _outFile){
   cTrig.Divide(2,2);
   TCanvas cSignal("cSignal","cSignal",1500,900);
   cSignal.Divide(2,2);
-  
+
    //Event USBWC
   tree->Branch("EventNumber",&EventNumber, "EventNumber/I");
   tree->Branch("SamplingPeriod", &SamplingPeriod,  "SamplingPeriod/F");
@@ -149,7 +148,7 @@ void read(TString _inFileList, TString _inDataFolder, TString _outFile){
   tree->Branch("tPMT2",&tPMT2, "tPMT2/F");
   tree->Branch("tSUMp",&tSUMp, "tSUMp/F");
   tree->Branch("tSUMm",&tSUMm, "tSUMm/F");
-  
+
   tree->Branch("trigTp",&trigTp, "trigTp/F");
   tree->Branch("t0t1",&t0t1, "t0t1/F");
   tree->Branch("t2t3",&t2t3, "t2t3/F");
@@ -160,7 +159,7 @@ void read(TString _inFileList, TString _inDataFolder, TString _outFile){
   tree->Branch("t",t, "t[nCh]/F");
   tree->Branch("EventIDsamIndex",EventIDsamIndex, "EventIDsamIndex[nCh]/I");
   tree->Branch("FirstCellToPlotsamIndex",FirstCellToPlotsamIndex, "FirstCellToPlotsamIndex[nCh]/I");
-  
+
   ///tree->Branch();
 // // //   tree->Branch("MeasuredBaseline_usbwc", MeasuredBaseline_usbwc, baseline_ss.Data());
 // // //   tree->Branch("AmplitudeValue_usbwc", AmplitudeValue_usbwc, amplitude_ss.Data());
@@ -171,14 +170,14 @@ void read(TString _inFileList, TString _inDataFolder, TString _outFile){
   //tree->Branch("amplValues", amplValues, "amplValues[nCh][1024]/S");
  // tree->Branch("hCh","TH1F",&hCh,128000,1);
   ///////////////////////////////////////////////////////
-  
-  
+
+
     int nitem = 1;
     ifstream inList;
     TString fileName;
     inList.open(_inFileList);
     assert(inList.is_open());
-    
+
     int wavePrintStatus=-1;
     int ch0PrintStatus=-1;
     int trigPrintStatus=-1;
@@ -197,7 +196,7 @@ void read(TString _inFileList, TString _inDataFolder, TString _outFile){
       char header[328];
       nitem=fread(header,1,328,pFILE);
       cout << "Header:\n" << header << endl;
-      
+
       char* word;
       word = strtok(header," \n");
       while(word != NULL){
@@ -209,13 +208,13 @@ void read(TString _inFileList, TString _inDataFolder, TString _outFile){
 	 //printf ("%s\n",word);
 	 word = strtok(NULL, " \n");
       }
-      
+
       if(nActiveCh>9){
 	cout << endl;
 	char dummy;
 	nitem=fread(&dummy,1,1,pFILE);
       }
-      
+
       int whileCounter = 0;
       while(nitem>0){
       whileCounter++;
@@ -229,10 +228,10 @@ void read(TString _inFileList, TString _inDataFolder, TString _outFile){
 	nitem = fread (&Second		,sizeof(unsigned int), 1,pFILE);
 	nitem = fread (&Millisecond	,sizeof(unsigned int), 1,pFILE);
 	nitem = fread (&nCh	,sizeof(unsigned int),1,pFILE); // since V2.8.14 the number of stored channels is written for each event
-	
-	
+
+
 	printf("POS, ev, y-m-d-h-min-s-ms, nActive-nCh: %ld, %d, %d-%d-%d-%d-%d-%d-%d, %d-%d \n", ftell(pFILE), EventNumber,Year,Month,Day,Hour,Minute,Second,Millisecond,nActiveCh,nCh);
-	
+
 	float	MeasuredBaseline[16];
 	float	AmplitudeValue[16];
 	float	ComputedCharge[16];
@@ -252,7 +251,7 @@ void read(TString _inFileList, TString _inDataFolder, TString _outFile){
 	  nitem = fread (&floatR,1,4,pFILE); FallTimeInstant[i] = floatR;
 	  nitem = fread (&floatR,1,4,pFILE); RawTriggerRate[i] = floatR;
 	  ChannelNr[i]=i;
-	 
+
 	  TString title("");
 	  title.Form("ch %d, ev %d",i,EventNumber);
 	  hCh.Reset();
@@ -266,15 +265,15 @@ void read(TString _inFileList, TString _inDataFolder, TString _outFile){
 // 	    nitem = fread(&dummy,sizeof(int),1,pFILE);
 // 	    printf("trigger channel number: %d\n",dummy);
 // 	}
-            
-	  
+
+
 	  if(EventNumber%wavesPrintRate==0){
 	    cWaves.cd(1+4*(i%4)+(i)/4);
 	    hCh.DrawCopy();
 	  }
 	  amp[i]=hCh.GetMaximum();
 	  t[i] = CFD(&hCh);
-	  
+
           if(EventNumber%ch0PrintRate==0&&i==0){
 	    cCh0.cd(1);
 	    hCh.DrawCopy();
@@ -285,7 +284,7 @@ void read(TString _inFileList, TString _inDataFolder, TString _outFile){
 	    if(ch0PrintStatus<0){cCh0.Print((TString)(plotSaveFolder+"/ch0.pdf("),"pdf");ch0PrintStatus=0;}
 	    else cCh0.Print((TString)(plotSaveFolder+"/ch0.pdf"),"pdf");
 	  }
-	  
+
 	 if(EventNumber%trigPrintRate==0&&(i>=0&&i<=3)){
 	    cTrig.cd(i+1);
 	    hCh.DrawCopy();
@@ -293,7 +292,7 @@ void read(TString _inFileList, TString _inDataFolder, TString _outFile){
 	    ln->SetLineColor(2);
 	    ln->Draw("same");
 	  }
-	  
+
 	 if(EventNumber%signalPrintRate==0&&(i>=4&&i<=7)){
 	    cSignal.cd(i+1-4);
 	    hCh.DrawCopy();
@@ -301,19 +300,19 @@ void read(TString _inFileList, TString _inDataFolder, TString _outFile){
 	    ln->SetLineColor(2);
 	    ln->Draw("same");
 	  }
-	  
-	  
-	  
+
+
+
        }//for nCh
-       
-          
+
+
        if(EventNumber%wavesPrintRate==0){
 	    //TString plotSaveName("");
 	    //plotSaveName.Form("%s/wave-%d.png",plotSaveFolder.Data(),EventNumber);
 	    if(wavePrintStatus<0){cWaves.Print((TString)(plotSaveFolder+"/waves.pdf("),"pdf");wavePrintStatus=0;}
 	    else cWaves.Print((TString)(plotSaveFolder+"/waves.pdf"),"pdf");
        }
-       
+
       trigT = (t[0]+t[1]+t[2]+t[3])/4;
       tPMT1 = t[4] - trigT;
       tPMT2 = t[5] - trigT;
@@ -322,7 +321,7 @@ void read(TString _inFileList, TString _inDataFolder, TString _outFile){
       trigTp = (t[0]+t[1]-t[2]-t[3])/4;
       t0t1 = (t[0]-t[1]);
       t2t3 = (t[2]-t[3]);
-      
+
        if(EventNumber%trigPrintRate==0){
 	    if(trigPrintStatus<0){cTrig.Print((TString)(plotSaveFolder+"/trig.pdf("),"pdf");trigPrintStatus=0;}
 	    else cTrig.Print((TString)(plotSaveFolder+"/trig.pdf"),"pdf");
@@ -331,35 +330,35 @@ void read(TString _inFileList, TString _inDataFolder, TString _outFile){
 	    if(signalPrintStatus<0){cSignal.Print((TString)(plotSaveFolder+"/signal.pdf("),"pdf");signalPrintStatus=0;}
 	    else cSignal.Print((TString)(plotSaveFolder+"/signal.pdf"),"pdf");
 	  }
-      
-      
-      
+
+
+
       tree->Fill();
-      }//while ivents 
-      
+      }//while ivents
+
     }//while
     inList.close();
     cWaves.Clear();
-    cWaves.Print((TString)(plotSaveFolder+"/waves.pdf)"),"pdf");  
+    cWaves.Print((TString)(plotSaveFolder+"/waves.pdf)"),"pdf");
     cCh0.Print((TString)(plotSaveFolder+"/ch0.pdf)"),"pdf");
     cTrig.Print((TString)(plotSaveFolder+"/trig.pdf)"),"pdf");
     cSignal.Print((TString)(plotSaveFolder+"/signal.pdf)"),"pdf");
-    
-        
+
+
   rootFile = tree->GetCurrentFile();
   rootFile->Write();
-  rootFile->Close();  
+  rootFile->Close();
 }
 
 float CFD(TH1F* hWave,bool isNegative){
-  float time = -999; 
+  float time = -999;
   int timePos=-999;
   float peak=-999;
   int peakPos = -999;
   peak = hWave->GetMaximum();
   peakPos = hWave->GetMaximumBin();
   float val = peak;
-  timePos=peakPos; 
+  timePos=peakPos;
   while(abs(val)>0.1*abs(peak)){
     val = hWave->GetBinContent(timePos);
     timePos-=1;
@@ -378,6 +377,6 @@ TString getRunName(TString inDataFolder){
 	 lastWord = word;
 	 word = strtok(NULL, "/");
       }
-      
+
       return (TString)lastWord;
 }
